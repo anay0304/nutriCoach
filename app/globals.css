@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Google Fonts ──────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Manrope:wght@300..700&display=swap');
+
+/* ── CSS custom properties (design tokens) ─────────────────── */
+:root {
+  --bg:              #f1ead9;
+  --bg-soft:         #ebe3cf;
+  --surface:         #fbf7ee;
+  --surface-2:       #f6efde;
+  --hairline:        #e5dcc4;
+  --hairline-strong: #d8cdb1;
+
+  --ink:             #1a2435;
+  --ink-2:           #2f3b50;
+  --ink-3:           #5b6577;
+  --ink-4:           #8a8f9c;
+
+  --sage:            #7e9479;
+  --sage-soft:       #d8e1d1;
+  --sage-ink:        #4a5e46;
+
+  --amber:           #c97a4a;
+  --amber-hover:     #b86a3b;
+  --amber-soft:      #efd6c2;
+  --amber-ink:       #7a3f1b;
+
+  --serif:  "Newsreader", ui-serif, Georgia, serif;
+  --sans:   "Geist", "Manrope", -apple-system, sans-serif;
+  --mono:   "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* ── Base resets ───────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+body {
+  @apply bg-bg text-ink;
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── Typography scale ──────────────────────────────────────── */
+h1, h2, h3, h4 {
+  font-family: var(--serif);
+  font-weight: 480;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  @apply text-ink;
+}
+h1 { font-size: 42px; letter-spacing: -0.025em; }
+h2 { font-size: 28px; letter-spacing: -0.02em; }
+h3 { font-size: 20px; letter-spacing: -0.015em; }
+h4 { font-family: var(--sans); font-size: 16px; font-weight: 600; letter-spacing: -0.005em; }
+
+/* ── Scrollbars ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: var(--hairline-strong);
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-4); }
+
+/* ── Coach mark (abstract identity, no avatar) ─────────────── */
+.coach-mark {
+  @apply rounded-full border border-hairline;
+  background: radial-gradient(circle at 30% 30%, #fbf7ee 0%, #f1ead9 40%, #ebe1c4 100%);
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+}
+.coach-mark::before, .coach-mark::after {
+  content: "";
+  position: absolute;
+  border: 1.2px solid var(--amber);
+  border-radius: 50%;
+}
+.coach-mark.size-md { width: 36px; height: 36px; }
+.coach-mark.size-md::before { inset: 7px; opacity: 0.55; }
+.coach-mark.size-md::after  { inset: 12px; background: var(--amber); border-color: var(--amber); }
+
+.coach-mark.size-lg { width: 56px; height: 56px; }
+.coach-mark.size-lg::before { inset: 11px; border-width: 1.5px; opacity: 0.55; }
+.coach-mark.size-lg::after  { inset: 19px; background: var(--amber); border-color: var(--amber); }
+
+.coach-mark.size-xs { width: 24px; height: 24px; }
+.coach-mark.size-xs::before { inset: 5px; border-width: 1px; opacity: 0.55; }
+.coach-mark.size-xs::after  { inset: 8px; background: var(--amber); border-color: var(--amber); }
+
+/* ── Progress ring (sage only) ─────────────────────────────── */
+.ring-track { stroke: var(--hairline-strong); }
+.ring-fill  { stroke: var(--sage); }
+
+/* ── Typing animation ──────────────────────────────────────── */
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: .4; }
+  30%           { transform: translateY(-3px); opacity: 1; }
+}
+
+/* ── Modal animations ──────────────────────────────────────── */
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop-in  {
+  from { opacity: 0; transform: scale(.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
