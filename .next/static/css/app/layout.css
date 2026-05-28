@@ -617,6 +617,9 @@ video {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
 }
+.-mt-2 {
+  margin-top: -0.5rem;
+}
 .mb-0 {
   margin-bottom: 0px;
 }
@@ -820,6 +823,9 @@ video {
 }
 .w-10 {
   width: 2.5rem;
+}
+.w-12 {
+  width: 3rem;
 }
 .w-14 {
   width: 3.5rem;
@@ -1662,6 +1668,10 @@ video {
 .text-ink-4 {
   --tw-text-opacity: 1;
   color: rgb(138 143 156 / var(--tw-text-opacity, 1));
+}
+.text-red-600 {
+  --tw-text-opacity: 1;
+  color: rgb(220 38 38 / var(--tw-text-opacity, 1));
 }
 .text-sage {
   --tw-text-opacity: 1;
