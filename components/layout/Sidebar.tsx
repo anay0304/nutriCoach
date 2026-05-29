@@ -7,6 +7,7 @@ import { LayoutDashboard, MessageCircle, BookOpen, LogOut } from "lucide-react"
 import { BrandMark } from "./BrandMark"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
+import { getProfile } from "@/lib/db/profiles"
 import { weekStreak, todayIndex } from "@/lib/data"
 
 const NAV_ITEMS = [
@@ -32,18 +33,26 @@ export function Sidebar({ onSignOut }: SidebarProps) {
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    async function load() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
+
+      // Primary source: profiles table. Falls back to auth metadata for
+      // users who signed up before the profiles table existed.
+      const profile = await getProfile()
       const meta = user.user_metadata ?? {}
-      const name: string = meta.name || user.email?.split("@")[0] || "You"
-      const fullName: string = meta.full_name || name
+
+      const name = profile?.name || meta.name || user.email?.split("@")[0] || "You"
+      const fullName = profile?.full_name || meta.full_name || name
+      const createdAt = profile?.created_at || user.created_at
       const joinedDays = Math.max(
         1,
-        Math.floor((Date.now() - new Date(user.created_at).getTime()) / 86_400_000)
+        Math.floor((Date.now() - new Date(createdAt).getTime()) / 86_400_000)
       )
       setCurrentUser({ name, fullName, joinedDays })
-    })
+    }
+    load()
   }, [])
 
   return (
