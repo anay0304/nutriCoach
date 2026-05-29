@@ -1,4 +1,5 @@
-⭐ NutriCoach — AI‑Powered Nutrition Coaching for Sustainable Habit Change
+**⭐ NutriCoach — AI‑Powered Nutrition Coaching for Sustainable Habit Change
+**
 NutriCoach is a modern, behavior‑change‑driven nutrition coaching platform designed to help users build healthier eating habits through simple, realistic, and sustainable actions. Instead of calorie‑tracking or rigid diet rules, NutriCoach focuses on guided coaching conversations, clear next steps, and gentle progress tracking — all grounded in evidence‑based behavior change psychology.
 
 Built with a clean, supportive UI and a modular architecture, NutriCoach delivers a coaching experience that feels structured, human‑centered, and genuinely helpful.
