@@ -12,6 +12,7 @@ import { CoachMark } from "@/components/layout/CoachMark"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { goals } from "@/lib/data"
+import { saveGoals } from "@/lib/db/goals"
 
 const TOTAL_STEPS = 5
 
@@ -256,9 +257,18 @@ export default function IntakePage() {
   const StepContent = STEP_COMPONENTS[step - 1]
   const progress = (step / TOTAL_STEPS) * 100
 
-  const advance = () => {
-    if (step < TOTAL_STEPS) setStep(step + 1)
-    else router.push("/dashboard")
+  const advance = async () => {
+    if (step < TOTAL_STEPS) {
+      setStep(step + 1)
+      return
+    }
+    await saveGoals(goals.map((g) => ({
+      title: g.title,
+      detail: g.detail,
+      cadence: g.cadence,
+      progress: g.progress,
+    })))
+    router.push("/dashboard")
   }
 
   return (

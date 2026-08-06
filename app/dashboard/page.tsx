@@ -1,21 +1,20 @@
 "use client"
 
 // Dashboard — switches between first-time and returning user states
-import { useState } from "react"
-import { ArrowRight, Clock, MessageCircle, Leaf, Check } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ArrowRight, Clock, MessageCircle, Leaf } from "lucide-react"
 import Link from "next/link"
 import { AppShell } from "@/components/layout/AppShell"
 import { Topbar } from "@/components/layout/Topbar"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { CoachMark } from "@/components/layout/CoachMark"
-import { ProgressRing } from "@/components/dashboard/ProgressRing"
 import { GoalRow } from "@/components/dashboard/GoalCard"
 import { NextStepsCard } from "@/components/dashboard/NextStepsCard"
 import { SessionSummaryCard } from "@/components/dashboard/SessionSummaryCard"
-import { StatsCard } from "@/components/dashboard/StatsCard"
 import { EncouragementBanner } from "@/components/dashboard/EncouragementBanner"
-import { goals, lastSession, user, weekStreak, todayIndex } from "@/lib/data"
+import { lastSession, user, weekStreak } from "@/lib/data"
+import type { Goal } from "@/types"
+import { getGoals } from "@/lib/db/goals"
 
 const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"]
 
@@ -112,7 +111,8 @@ function DashboardFirstTime({ onStartIntake }: { onStartIntake: () => void }) {
 }
 
 // ── Returning user dashboard (hero layout) ────────────────────
-function DashboardReturning({ onStartSession, onOpenCoaching }: {
+function DashboardReturning({ goals, onStartSession, onOpenCoaching }: {
+  goals: Goal[]
   onStartSession: () => void
   onOpenCoaching: () => void
 }) {
@@ -261,45 +261,37 @@ function DashboardReturning({ onStartSession, onOpenCoaching }: {
 
 // ── Page shell ────────────────────────────────────────────────
 export default function DashboardPage() {
-  // In a real app this would come from session/auth context
-  const [isReturning, setIsReturning] = useState(true)
+  const [goals, setGoals] = useState<Goal[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Toggle for demo purposes
-  const handleToggle = () => setIsReturning((v) => !v)
+  useEffect(() => {
+    getGoals().then((data) => {
+      setGoals(data)
+      setLoading(false)
+    })
+  }, [])
 
-  const crumb = (
-    <span>
-      Dashboard{" "}
-      <span className="text-ink-4">
-        · {isReturning ? "Returning user" : "First-time user"}
-      </span>
-    </span>
-  )
+  const isReturning = !loading && goals.length > 0
 
   return (
     <AppShell>
       <Topbar
-        crumb={crumb}
+        crumb={<span>Dashboard</span>}
         right={
-          <>
-            {/* Demo toggle */}
-            <Button variant="subtle" size="sm" onClick={handleToggle} className="mr-1">
-              {isReturning ? "First-time view" : "Returning view"}
-            </Button>
-            {isReturning && (
-              <Link href="/coaching">
-                <Button variant="primary" size="sm">
-                  <MessageCircle size={13} /> Open coaching
-                </Button>
-              </Link>
-            )}
-          </>
+          isReturning ? (
+            <Link href="/coaching">
+              <Button variant="primary" size="sm">
+                <MessageCircle size={13} /> Open coaching
+              </Button>
+            </Link>
+          ) : null
         }
       />
 
       <main className="flex-1 overflow-y-auto">
-        {isReturning ? (
+        {loading ? null : isReturning ? (
           <DashboardReturning
+            goals={goals}
             onStartSession={() => window.location.href = "/coaching"}
             onOpenCoaching={() => window.location.href = "/coaching"}
           />

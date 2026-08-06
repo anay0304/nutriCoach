@@ -1,8 +1,18 @@
-import { goals, lastSession } from "@/lib/data"
+"use client"
+
+import { useState, useEffect } from "react"
+import { lastSession } from "@/lib/data"
+import { getGoals } from "@/lib/db/goals"
+import type { Goal } from "@/types"
 
 // Right panel in the coaching view — shows goals, open steps, backup plans
 export function ContextPanel() {
+  const [goals, setGoals] = useState<Goal[]>([])
   const openSteps = lastSession.actionSteps.filter((s) => !s.done)
+
+  useEffect(() => {
+    getGoals().then(setGoals)
+  }, [])
 
   return (
     <div className="h-full overflow-y-auto px-6 py-[22px] bg-bg flex flex-col gap-[18px]">
