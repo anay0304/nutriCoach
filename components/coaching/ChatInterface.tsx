@@ -24,9 +24,15 @@ const QUICK_STARTERS = [
   "I'm not sure what to talk about",
 ]
 
-// Simulated coach response (placeholder for real AI)
-const COACH_RESPONSE =
-  "That's a useful thing to notice. What do you think made that the easier choice in the moment — was it preparation, or was something else softer about the day?"
+async function fetchCoachReply(messages: Message[]): Promise<string> {
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages }),
+  })
+  const { text } = await res.json()
+  return text ?? "I'm having trouble responding right now. Please try again."
+}
 
 export function ChatInterface({ session, initialMessages, chatStyle = "bubble" }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
@@ -43,16 +49,18 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble" }
 
   const send = async () => {
     const text = draft.trim()
-    if (!text) return
+    if (!text || isTyping) return
     setDraft("")
-    setMessages((prev) => [...prev, { role: "user", text }])
+
+    const updatedMessages: Message[] = [...messages, { role: "user", text }]
+    setMessages(updatedMessages)
     await saveMessage(session.id, "user", text)
+
     setIsTyping(true)
-    setTimeout(async () => {
-      setIsTyping(false)
-      setMessages((prev) => [...prev, { role: "coach", text: COACH_RESPONSE }])
-      await saveMessage(session.id, "coach", COACH_RESPONSE)
-    }, 900)
+    const reply = await fetchCoachReply(updatedMessages)
+    setIsTyping(false)
+    setMessages((prev) => [...prev, { role: "coach", text: reply }])
+    await saveMessage(session.id, "coach", reply)
   }
 
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
