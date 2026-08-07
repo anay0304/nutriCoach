@@ -1,16 +1,55 @@
 "use client"
 
-// Coaching page — three-column layout: session list | chat | context panel
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AppShell } from "@/components/layout/AppShell"
 import { Topbar } from "@/components/layout/Topbar"
 import { SessionList } from "@/components/coaching/SessionList"
 import { ChatInterface } from "@/components/coaching/ChatInterface"
 import { ContextPanel } from "@/components/coaching/ContextPanel"
-import { sessions, initialConversation } from "@/lib/data"
+import { getSessions, createSession } from "@/lib/db/sessions"
+import { getMessages } from "@/lib/db/messages"
+import type { Session, Message } from "@/types"
 
 export default function CoachingPage() {
-  const [activeId, setActiveId] = useState(sessions[0].id)
+  const [sessions, setSessions] = useState<Session[]>([])
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      let data = await getSessions()
+
+      // First-time visitor: create an initial session so the chat is ready
+      if (data.length === 0) {
+        const fresh = await createSession("First coaching session", "session")
+        if (fresh) data = [fresh]
+      }
+
+      setSessions(data)
+
+      if (data.length > 0) {
+        setActiveId(data[0].id)
+        setMessages(await getMessages(data[0].id))
+      }
+
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  const selectSession = async (id: string) => {
+    setActiveId(id)
+    setMessages(await getMessages(id))
+  }
+
+  const handleNewSession = async () => {
+    const fresh = await createSession(`Session ${sessions.length + 1}`, "session")
+    if (!fresh) return
+    setSessions((prev) => [fresh, ...prev])
+    setActiveId(fresh.id)
+    setMessages([])
+  }
 
   const activeSession = sessions.find((s) => s.id === activeId) ?? sessions[0]
 
@@ -32,22 +71,27 @@ export default function CoachingPage() {
           height: "calc(100vh - 64px)",
         }}
       >
-        {/* Session list */}
-        <SessionList
-          sessions={sessions}
-          activeId={activeId}
-          onSelect={setActiveId}
-          onNewSession={() => (window.location.href = "/coaching/intake")}
-        />
+        {!loading && (
+          <>
+            <SessionList
+              sessions={sessions}
+              activeId={activeId ?? ""}
+              onSelect={selectSession}
+              onNewSession={handleNewSession}
+            />
 
-        {/* Chat */}
-        <ChatInterface
-          session={activeSession}
-          initialMessages={initialConversation}
-          chatStyle="bubble"
-        />
+            {activeSession && (
+              <ChatInterface
+                key={activeId}
+                session={activeSession}
+                initialMessages={messages}
+                chatStyle="bubble"
+              />
+            )}
+          </>
+        )}
 
-        {/* Context panel */}
+        {/* Context panel always visible */}
         <ContextPanel />
       </main>
     </AppShell>

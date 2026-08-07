@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { CoachMark } from "@/components/layout/CoachMark"
 import { ChatBubble, TypingIndicator, SessionMarker } from "./ChatBubble"
 import { cn } from "@/lib/utils"
+import { saveMessage } from "@/lib/db/messages"
 import type { Message, Session } from "@/types"
 
 type ChatStyle = "bubble" | "minimal" | "paper"
@@ -40,15 +41,17 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble" }
     }
   }, [messages.length, isTyping])
 
-  const send = () => {
+  const send = async () => {
     const text = draft.trim()
     if (!text) return
     setDraft("")
     setMessages((prev) => [...prev, { role: "user", text }])
+    await saveMessage(session.id, "user", text)
     setIsTyping(true)
-    setTimeout(() => {
+    setTimeout(async () => {
       setIsTyping(false)
       setMessages((prev) => [...prev, { role: "coach", text: COACH_RESPONSE }])
+      await saveMessage(session.id, "coach", COACH_RESPONSE)
     }, 900)
   }
 
