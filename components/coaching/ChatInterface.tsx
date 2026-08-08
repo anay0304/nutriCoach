@@ -57,10 +57,13 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble" }
     await saveMessage(session.id, "user", text)
 
     setIsTyping(true)
-    const reply = await fetchCoachReply(updatedMessages)
-    setIsTyping(false)
-    setMessages((prev) => [...prev, { role: "coach", text: reply }])
-    await saveMessage(session.id, "coach", reply)
+    try {
+      const reply = await fetchCoachReply(updatedMessages)
+      setMessages((prev) => [...prev, { role: "coach", text: reply }])
+      await saveMessage(session.id, "coach", reply)
+    } finally {
+      setIsTyping(false)
+    }
   }
 
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {

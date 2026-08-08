@@ -18,22 +18,24 @@ export default function CoachingPage() {
 
   useEffect(() => {
     async function load() {
-      let data = await getSessions()
+      try {
+        let data = await getSessions()
 
-      // First-time visitor: create an initial session so the chat is ready
-      if (data.length === 0) {
-        const fresh = await createSession("First coaching session", "session")
-        if (fresh) data = [fresh]
+        // First-time visitor: create an initial session so the chat is ready
+        if (data.length === 0) {
+          const fresh = await createSession("First coaching session", "session")
+          if (fresh) data = [fresh]
+        }
+
+        setSessions(data)
+
+        if (data.length > 0) {
+          setActiveId(data[0].id)
+          setMessages(await getMessages(data[0].id))
+        }
+      } finally {
+        setLoading(false)
       }
-
-      setSessions(data)
-
-      if (data.length > 0) {
-        setActiveId(data[0].id)
-        setMessages(await getMessages(data[0].id))
-      }
-
-      setLoading(false)
     }
     load()
   }, [])
