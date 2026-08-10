@@ -12,9 +12,10 @@ import { GoalRow } from "@/components/dashboard/GoalCard"
 import { NextStepsCard } from "@/components/dashboard/NextStepsCard"
 import { SessionSummaryCard } from "@/components/dashboard/SessionSummaryCard"
 import { EncouragementBanner } from "@/components/dashboard/EncouragementBanner"
-import { lastSession, user, weekStreak } from "@/lib/data"
+import { lastSession, weekStreak } from "@/lib/data"
 import type { Goal } from "@/types"
 import { getGoals } from "@/lib/db/goals"
+import { getProfile } from "@/lib/db/profiles"
 
 const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"]
 
@@ -111,8 +112,9 @@ function DashboardFirstTime({ onStartIntake }: { onStartIntake: () => void }) {
 }
 
 // ── Returning user dashboard (hero layout) ────────────────────
-function DashboardReturning({ goals, onStartSession, onOpenCoaching }: {
+function DashboardReturning({ goals, name, onStartSession, onOpenCoaching }: {
   goals: Goal[]
+  name: string | null
   onStartSession: () => void
   onOpenCoaching: () => void
 }) {
@@ -127,7 +129,7 @@ function DashboardReturning({ goals, onStartSession, onOpenCoaching }: {
           >
             Good evening · Thursday
           </div>
-          <h1 className="font-serif text-[34px]">Welcome back, {user.name}.</h1>
+          <h1 className="font-serif text-[34px]">Welcome back{name ? `, ${name}` : ""}.</h1>
           <p className="font-serif italic text-ink-3 text-[16px] mt-1.5">
             A quiet check-in is enough today. We don&apos;t need a perfect week.
           </p>
@@ -262,13 +264,17 @@ function DashboardReturning({ goals, onStartSession, onOpenCoaching }: {
 // ── Page shell ────────────────────────────────────────────────
 export default function DashboardPage() {
   const [goals, setGoals] = useState<Goal[]>([])
+  const [userName, setUserName] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getGoals().then((data) => {
-      setGoals(data)
+    async function load() {
+      const [goalsData, profile] = await Promise.all([getGoals(), getProfile()])
+      setGoals(goalsData)
+      setUserName(profile?.name ?? profile?.full_name?.split(" ")[0] ?? null)
       setLoading(false)
-    })
+    }
+    load()
   }, [])
 
   const isReturning = !loading && goals.length > 0
@@ -292,6 +298,7 @@ export default function DashboardPage() {
         {loading ? null : isReturning ? (
           <DashboardReturning
             goals={goals}
+            name={userName}
             onStartSession={() => window.location.href = "/coaching"}
             onOpenCoaching={() => window.location.href = "/coaching"}
           />
