@@ -12,10 +12,11 @@ import { GoalRow } from "@/components/dashboard/GoalCard"
 import { NextStepsCard } from "@/components/dashboard/NextStepsCard"
 import { SessionSummaryCard } from "@/components/dashboard/SessionSummaryCard"
 import { EncouragementBanner } from "@/components/dashboard/EncouragementBanner"
-import { lastSession, weekStreak } from "@/lib/data"
+import { lastSession } from "@/lib/data"
 import type { Goal } from "@/types"
 import { getGoals } from "@/lib/db/goals"
 import { getProfile } from "@/lib/db/profiles"
+import { getSessionStats } from "@/lib/db/sessions"
 
 const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"]
 
@@ -112,9 +113,11 @@ function DashboardFirstTime({ onStartIntake }: { onStartIntake: () => void }) {
 }
 
 // ── Returning user dashboard (hero layout) ────────────────────
-function DashboardReturning({ goals, name, onStartSession, onOpenCoaching }: {
+function DashboardReturning({ goals, name, sessionCount, weekActivity, onStartSession, onOpenCoaching }: {
   goals: Goal[]
   name: string | null
+  sessionCount: number
+  weekActivity: boolean[]
   onStartSession: () => void
   onOpenCoaching: () => void
 }) {
@@ -170,7 +173,7 @@ function DashboardReturning({ goals, name, onStartSession, onOpenCoaching }: {
             <p
               className="font-serif text-[26px] leading-[1.25] tracking-[-0.015em] mb-3.5 max-w-[360px]"
             >
-              You&apos;ve had {lastSession.sessionNumber} sessions and three goals you&apos;re keeping warm.
+              You&apos;ve had {sessionCount} sessions and three goals you&apos;re keeping warm.
             </p>
             <p className="text-[13.5px] leading-[1.55] max-w-[340px]"
                style={{ color: "rgba(247,239,219,0.7)" }}>
@@ -189,7 +192,7 @@ function DashboardReturning({ goals, name, onStartSession, onOpenCoaching }: {
             <div
               className="font-serif text-[56px] tracking-[-0.03em] leading-none"
             >
-              {lastSession.sessionNumber}
+              {sessionCount}
             </div>
             <div className="text-[12.5px] mt-2" style={{ color: "rgba(247,239,219,0.7)" }}>
               completed since April 28
@@ -210,8 +213,8 @@ function DashboardReturning({ goals, name, onStartSession, onOpenCoaching }: {
                   <div
                     className="w-full rounded-[4px]"
                     style={{
-                      height: weekStreak[i] ? "100%" : "30%",
-                      background: weekStreak[i] ? "var(--sage)" : "rgba(247,239,219,0.12)",
+                      height: weekActivity[i] ? "100%" : "30%",
+                      background: weekActivity[i] ? "var(--sage)" : "rgba(247,239,219,0.12)",
                     }}
                   />
                   <span
@@ -265,13 +268,17 @@ function DashboardReturning({ goals, name, onStartSession, onOpenCoaching }: {
 export default function DashboardPage() {
   const [goals, setGoals] = useState<Goal[]>([])
   const [userName, setUserName] = useState<string | null>(null)
+  const [sessionCount, setSessionCount] = useState(0)
+  const [weekActivity, setWeekActivity] = useState<boolean[]>(Array(7).fill(false))
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
-      const [goalsData, profile] = await Promise.all([getGoals(), getProfile()])
+      const [goalsData, profile, stats] = await Promise.all([getGoals(), getProfile(), getSessionStats()])
       setGoals(goalsData)
       setUserName(profile?.name ?? profile?.full_name?.split(" ")[0] ?? null)
+      setSessionCount(stats.count)
+      setWeekActivity(stats.weekActivity)
       setLoading(false)
     }
     load()
@@ -299,6 +306,8 @@ export default function DashboardPage() {
           <DashboardReturning
             goals={goals}
             name={userName}
+            sessionCount={sessionCount}
+            weekActivity={weekActivity}
             onStartSession={() => window.location.href = "/coaching"}
             onOpenCoaching={() => window.location.href = "/coaching"}
           />
