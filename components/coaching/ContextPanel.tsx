@@ -1,17 +1,29 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { lastSession } from "@/lib/data"
 import { getGoals } from "@/lib/db/goals"
-import type { Goal } from "@/types"
+import { getLatestActionSteps } from "@/lib/db/action_steps"
+import { getSessionStats } from "@/lib/db/sessions"
+import type { Goal, ActionStep } from "@/types"
 
-// Right panel in the coaching view — shows goals, open steps, backup plans
+// Right panel in the coaching view — shows goals, open steps, session count
 export function ContextPanel() {
   const [goals, setGoals] = useState<Goal[]>([])
-  const openSteps = lastSession.actionSteps.filter((s) => !s.done)
+  const [openSteps, setOpenSteps] = useState<ActionStep[]>([])
+  const [sessionCount, setSessionCount] = useState(0)
 
   useEffect(() => {
-    getGoals().then(setGoals)
+    async function load() {
+      const [goalsData, steps, stats] = await Promise.all([
+        getGoals(),
+        getLatestActionSteps(),
+        getSessionStats(),
+      ])
+      setGoals(goalsData)
+      setOpenSteps(steps.filter((s) => !s.done))
+      setSessionCount(stats.count)
+    }
+    load()
   }, [])
 
   return (
@@ -62,38 +74,23 @@ export function ContextPanel() {
         >
           Open action steps
         </div>
-        <div className="bg-surface border border-hairline rounded-lg px-4 py-1">
-          {openSteps.map((s) => (
-            <div
-              key={s.id}
-              className="flex gap-2.5 py-2.5 border-b border-hairline last:border-0 text-[13px] text-ink-2 leading-[1.5]"
-            >
-              <div className="w-1.5 h-1.5 rounded-full bg-amber mt-2 shrink-0" />
-              <span>{s.text}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Backup plans */}
-      <div>
-        <div
-          className="text-[10.5px] tracking-[0.14em] uppercase text-ink-3 mb-2.5"
-          style={{ fontFamily: "var(--mono)" }}
-        >
-          Backup plans
-        </div>
-        <div className="bg-surface-2 border border-hairline rounded-lg px-4 py-3.5 flex flex-col gap-2.5">
-          {lastSession.backupPlans.map((p, i) => (
-            <div
-              key={i}
-              className="text-[13px] text-ink-2 leading-[1.5]"
-              style={{ fontFamily: "var(--serif)" }}
-            >
-              {p}
-            </div>
-          ))}
-        </div>
+        {openSteps.length === 0 ? (
+          <p className="text-[13px] text-ink-3 px-1">
+            No open steps yet — they&apos;ll appear here after your sessions.
+          </p>
+        ) : (
+          <div className="bg-surface border border-hairline rounded-lg px-4 py-1">
+            {openSteps.map((s) => (
+              <div
+                key={s.id}
+                className="flex gap-2.5 py-2.5 border-b border-hairline last:border-0 text-[13px] text-ink-2 leading-[1.5]"
+              >
+                <div className="w-1.5 h-1.5 rounded-full bg-amber mt-2 shrink-0" />
+                <span>{s.text}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Footer stat */}
@@ -104,7 +101,7 @@ export function ContextPanel() {
             className="text-[18px] text-ink"
             style={{ fontFamily: "var(--serif)" }}
           >
-            {lastSession.sessionNumber}
+            {sessionCount}
           </span>
         </div>
       </div>
