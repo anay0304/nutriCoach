@@ -17,6 +17,7 @@ import type { Goal } from "@/types"
 import { getGoals } from "@/lib/db/goals"
 import { getProfile } from "@/lib/db/profiles"
 import { getSessionStats } from "@/lib/db/sessions"
+import { getLatestActionSteps } from "@/lib/db/action_steps"
 
 const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"]
 
@@ -113,11 +114,12 @@ function DashboardFirstTime({ onStartIntake }: { onStartIntake: () => void }) {
 }
 
 // ── Returning user dashboard (hero layout) ────────────────────
-function DashboardReturning({ goals, name, sessionCount, weekActivity, onStartSession, onOpenCoaching }: {
+function DashboardReturning({ goals, name, sessionCount, weekActivity, actionSteps, onStartSession, onOpenCoaching }: {
   goals: Goal[]
   name: string | null
   sessionCount: number
   weekActivity: boolean[]
+  actionSteps: import("@/types").ActionStep[]
   onStartSession: () => void
   onOpenCoaching: () => void
 }) {
@@ -234,7 +236,7 @@ function DashboardReturning({ goals, name, sessionCount, weekActivity, onStartSe
       <div className="grid grid-cols-12 gap-[18px]">
         {/* Left — next steps + last session */}
         <div className="col-span-8 flex flex-col gap-[18px]">
-          <NextStepsCard session={lastSession} />
+          <NextStepsCard steps={actionSteps} sessionNumber={sessionCount} />
           <SessionSummaryCard session={lastSession} onOpen={onOpenCoaching} />
         </div>
 
@@ -270,15 +272,19 @@ export default function DashboardPage() {
   const [userName, setUserName] = useState<string | null>(null)
   const [sessionCount, setSessionCount] = useState(0)
   const [weekActivity, setWeekActivity] = useState<boolean[]>(Array(7).fill(false))
+  const [actionSteps, setActionSteps] = useState<import("@/types").ActionStep[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
-      const [goalsData, profile, stats] = await Promise.all([getGoals(), getProfile(), getSessionStats()])
+      const [goalsData, profile, stats, steps] = await Promise.all([
+        getGoals(), getProfile(), getSessionStats(), getLatestActionSteps(),
+      ])
       setGoals(goalsData)
       setUserName(profile?.name ?? profile?.full_name?.split(" ")[0] ?? null)
       setSessionCount(stats.count)
       setWeekActivity(stats.weekActivity)
+      setActionSteps(steps)
       setLoading(false)
     }
     load()
@@ -308,6 +314,7 @@ export default function DashboardPage() {
             name={userName}
             sessionCount={sessionCount}
             weekActivity={weekActivity}
+            actionSteps={actionSteps}
             onStartSession={() => window.location.href = "/coaching"}
             onOpenCoaching={() => window.location.href = "/coaching"}
           />

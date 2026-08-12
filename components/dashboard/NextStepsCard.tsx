@@ -5,7 +5,8 @@ import { Check, Plus } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import type { ActionStep, LastSession } from "@/types"
+import type { ActionStep } from "@/types"
+import { toggleActionStep } from "@/lib/db/action_steps"
 
 // Checkable action step row
 function StepRow({ step, onToggle }: { step: ActionStep; onToggle: () => void }) {
@@ -38,14 +39,19 @@ function StepRow({ step, onToggle }: { step: ActionStep; onToggle: () => void })
 }
 
 interface NextStepsCardProps {
-  session: LastSession
+  steps: ActionStep[]
+  sessionNumber: number
 }
 
-export function NextStepsCard({ session }: NextStepsCardProps) {
-  const [steps, setSteps] = useState<ActionStep[]>(session.actionSteps)
+export function NextStepsCard({ steps: initialSteps, sessionNumber }: NextStepsCardProps) {
+  const [steps, setSteps] = useState<ActionStep[]>(initialSteps)
 
-  const toggle = (id: string) =>
+  const toggle = async (id: string) => {
+    const current = steps.find((s) => s.id === id)
+    if (!current) return
     setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, done: !s.done } : s)))
+    await toggleActionStep(id, !current.done)
+  }
 
   const completedCount = steps.filter((s) => s.done).length
 
@@ -57,7 +63,7 @@ export function NextStepsCard({ session }: NextStepsCardProps) {
             className="text-[10.5px] tracking-[0.14em] uppercase text-ink-3 mb-1.5"
             style={{ fontFamily: "var(--mono)" }}
           >
-            From session {session.sessionNumber}
+            From session {sessionNumber}
           </div>
           <h3 className="font-serif text-xl whitespace-nowrap">Your next steps</h3>
         </div>
@@ -75,11 +81,17 @@ export function NextStepsCard({ session }: NextStepsCardProps) {
         </div>
       </div>
 
-      <div className="flex flex-col">
-        {steps.map((step) => (
-          <StepRow key={step.id} step={step} onToggle={() => toggle(step.id)} />
-        ))}
-      </div>
+      {steps.length === 0 ? (
+        <p className="text-[13.5px] text-ink-3 py-2">
+          Your action steps will appear here after your first coaching session.
+        </p>
+      ) : (
+        <div className="flex flex-col">
+          {steps.map((step) => (
+            <StepRow key={step.id} step={step} onToggle={() => toggle(step.id)} />
+          ))}
+        </div>
+      )}
     </Card>
   )
 }
