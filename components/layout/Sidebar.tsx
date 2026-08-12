@@ -8,7 +8,7 @@ import { BrandMark } from "./BrandMark"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { getProfile } from "@/lib/db/profiles"
-import { weekStreak, todayIndex } from "@/lib/data"
+import { getSessionStats } from "@/lib/db/sessions"
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -31,6 +31,11 @@ interface CurrentUser {
 export function Sidebar({ onSignOut }: SidebarProps) {
   const pathname = usePathname()
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
+  const [weekActivity, setWeekActivity] = useState<boolean[]>(Array(7).fill(false))
+
+  // Mon=0 … Sun=6, matching the weekActivity array layout
+  const dow = new Date().getDay()
+  const todayIdx = dow === 0 ? 6 : dow - 1
 
   useEffect(() => {
     async function load() {
@@ -40,7 +45,7 @@ export function Sidebar({ onSignOut }: SidebarProps) {
 
       // Primary source: profiles table. Falls back to auth metadata for
       // users who signed up before the profiles table existed.
-      const profile = await getProfile()
+      const [profile, stats] = await Promise.all([getProfile(), getSessionStats()])
       const meta = user.user_metadata ?? {}
 
       const name = profile?.name || meta.name || user.email?.split("@")[0] || "You"
@@ -51,6 +56,7 @@ export function Sidebar({ onSignOut }: SidebarProps) {
         Math.floor((Date.now() - new Date(createdAt).getTime()) / 86_400_000)
       )
       setCurrentUser({ name, fullName, joinedDays })
+      setWeekActivity(stats.weekActivity)
     }
     load()
   }, [])
@@ -139,7 +145,7 @@ export function Sidebar({ onSignOut }: SidebarProps) {
             className="text-ink-3 text-[11px]"
             style={{ fontFamily: "var(--mono)" }}
           >
-            5 of 7
+            {weekActivity.filter(Boolean).length} of 7
           </span>
         </div>
         <div className="flex gap-1">
@@ -149,14 +155,16 @@ export function Sidebar({ onSignOut }: SidebarProps) {
               title={d}
               className={cn(
                 "w-[18px] h-[18px] rounded-[5px]",
-                weekStreak[i] ? "bg-sage" : "bg-hairline",
-                todayIndex === i && "ring-[1.5px] ring-ink ring-inset"
+                weekActivity[i] ? "bg-sage" : "bg-hairline",
+                todayIdx === i && "ring-[1.5px] ring-ink ring-inset"
               )}
             />
           ))}
         </div>
         <p className="text-xs text-ink-3 mt-2.5 leading-[1.45]">
-          You showed up 5 days this week. That&apos;s the work.
+          {weekActivity.filter(Boolean).length === 0
+            ? "Start your first check-in this week."
+            : `You showed up ${weekActivity.filter(Boolean).length} ${weekActivity.filter(Boolean).length === 1 ? "day" : "days"} this week. That's the work.`}
         </p>
       </div>
 
