@@ -42,6 +42,22 @@ export async function getSessions(): Promise<Session[]> {
   return (data ?? []).map(toSession)
 }
 
+export async function getLastSession(): Promise<Session | null> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data } = await supabase
+    .from("sessions")
+    .select("id, title, type, duration, preview, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single()
+
+  return data ? toSession(data) : null
+}
+
 export async function getSessionStats(): Promise<{ count: number; weekActivity: boolean[] }> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
