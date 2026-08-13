@@ -123,6 +123,10 @@ function DashboardReturning({ goals, name, sessionCount, weekActivity, actionSte
   onStartSession: () => void
   onOpenCoaching: () => void
 }) {
+  const hour = new Date().getHours()
+  const timeGreeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening"
+  const dayName = new Date().toLocaleDateString("en-US", { weekday: "long" })
+
   return (
     <div className="p-8 pb-20">
       {/* Page header */}
@@ -132,7 +136,7 @@ function DashboardReturning({ goals, name, sessionCount, weekActivity, actionSte
             className="text-[10.5px] tracking-[0.14em] uppercase text-ink-3 mb-2.5"
             style={{ fontFamily: "var(--mono)" }}
           >
-            Good evening · Thursday
+            {timeGreeting} · {dayName}
           </div>
           <h1 className="font-serif text-[34px]">Welcome back{name ? `, ${name}` : ""}.</h1>
           <p className="font-serif italic text-ink-3 text-[16px] mt-1.5">
