@@ -12,7 +12,7 @@ import { getSessionStats } from "@/lib/db/sessions"
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/coaching",  label: "Coaching",  icon: MessageCircle, count: 7 },
+  { href: "/coaching",  label: "Coaching",  icon: MessageCircle },
   { href: "/resources", label: "Resources",  icon: BookOpen },
 ]
 
@@ -32,6 +32,7 @@ export function Sidebar({ onSignOut }: SidebarProps) {
   const pathname = usePathname()
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
   const [weekActivity, setWeekActivity] = useState<boolean[]>(Array(7).fill(false))
+  const [sessionCount, setSessionCount] = useState(0)
 
   // Mon=0 … Sun=6, matching the weekActivity array layout
   const dow = new Date().getDay()
@@ -57,6 +58,7 @@ export function Sidebar({ onSignOut }: SidebarProps) {
       )
       setCurrentUser({ name, fullName, joinedDays })
       setWeekActivity(stats.weekActivity)
+      setSessionCount(stats.count)
     }
     load()
   }, [])
@@ -89,8 +91,9 @@ export function Sidebar({ onSignOut }: SidebarProps) {
 
       {/* Nav items */}
       <nav className="flex flex-col gap-0.5 mb-1.5">
-        {NAV_ITEMS.map(({ href, label, icon: Icon, count }) => {
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/")
+          const badge = href === "/coaching" && sessionCount > 0 ? sessionCount : null
           return (
             <Link
               key={href}
@@ -108,7 +111,7 @@ export function Sidebar({ onSignOut }: SidebarProps) {
                 className={cn("shrink-0", active ? "text-[#efe7d4]" : "text-ink-3")}
               />
               <span>{label}</span>
-              {count != null && (
+              {badge != null && (
                 <span
                   className={cn(
                     "ml-auto rounded-pill px-[7px] py-px text-[10.5px]",
@@ -118,7 +121,7 @@ export function Sidebar({ onSignOut }: SidebarProps) {
                   )}
                   style={{ fontFamily: "var(--mono)" }}
                 >
-                  {count}
+                  {badge}
                 </span>
               )}
             </Link>
