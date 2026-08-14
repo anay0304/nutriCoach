@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Check, Plus } from "lucide-react"
+import { Check, Plus, X } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { ActionStep } from "@/types"
-import { toggleActionStep } from "@/lib/db/action_steps"
+import { toggleActionStep, addActionStep } from "@/lib/db/action_steps"
 
 // Checkable action step row
 function StepRow({ step, onToggle }: { step: ActionStep; onToggle: () => void }) {
@@ -45,6 +45,9 @@ interface NextStepsCardProps {
 
 export function NextStepsCard({ steps: initialSteps, sessionNumber }: NextStepsCardProps) {
   const [steps, setSteps] = useState<ActionStep[]>(initialSteps)
+  const [adding, setAdding] = useState(false)
+  const [newText, setNewText] = useState("")
+  const [saving, setSaving] = useState(false)
 
   const toggle = async (id: string) => {
     const current = steps.find((s) => s.id === id)
@@ -52,6 +55,21 @@ export function NextStepsCard({ steps: initialSteps, sessionNumber }: NextStepsC
     setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, done: !s.done } : s)))
     await toggleActionStep(id, !current.done)
   }
+
+  const submitAdd = async () => {
+    if (!newText.trim() || saving) return
+    setSaving(true)
+    try {
+      const created = await addActionStep(newText.trim())
+      if (created) setSteps((prev) => [...prev, created])
+      setNewText("")
+      setAdding(false)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const cancelAdd = () => { setAdding(false); setNewText("") }
 
   const completedCount = steps.filter((s) => s.done).length
 
@@ -75,23 +93,48 @@ export function NextStepsCard({ steps: initialSteps, sessionNumber }: NextStepsC
           >
             {completedCount} of {steps.length} done
           </span>
-          <Button variant="subtle" size="sm">
+          <Button variant="subtle" size="sm" onClick={() => setAdding(true)} disabled={adding}>
             <Plus size={12} /> Add step
           </Button>
         </div>
       </div>
 
-      {steps.length === 0 ? (
-        <p className="text-[13.5px] text-ink-3 py-2">
-          Your action steps will appear here after your first coaching session.
-        </p>
-      ) : (
-        <div className="flex flex-col">
-          {steps.map((step) => (
-            <StepRow key={step.id} step={step} onToggle={() => toggle(step.id)} />
-          ))}
-        </div>
-      )}
+      <div className="flex flex-col">
+        {steps.length === 0 && !adding && (
+          <p className="text-[13.5px] text-ink-3 py-2">
+            Your action steps will appear here after your first coaching session.
+          </p>
+        )}
+        {steps.map((step) => (
+          <StepRow key={step.id} step={step} onToggle={() => toggle(step.id)} />
+        ))}
+        {adding && (
+          <div className="flex gap-3 items-center pt-3.5 border-t border-hairline">
+            <div className="w-[22px] h-[22px] rounded-full border-[1.5px] border-dashed border-hairline-strong shrink-0 grid place-items-center">
+              <Plus size={10} className="text-ink-4" />
+            </div>
+            <input
+              autoFocus
+              placeholder="Describe your next step…"
+              value={newText}
+              onChange={(e) => setNewText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") submitAdd()
+                if (e.key === "Escape") cancelAdd()
+              }}
+              className="flex-1 bg-transparent text-[14px] outline-none placeholder:text-ink-4 border-b border-hairline pb-0.5"
+            />
+            <div className="flex gap-1.5 items-center">
+              <Button variant="subtle" size="sm" onClick={submitAdd} disabled={saving || !newText.trim()}>
+                {saving ? "…" : "Add"}
+              </Button>
+              <button onClick={cancelAdd} className="text-ink-3 hover:text-ink transition-colors p-1">
+                <X size={13} />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </Card>
   )
 }
