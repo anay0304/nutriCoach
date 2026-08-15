@@ -15,6 +15,11 @@ export async function getGoals(): Promise<Goal[]> {
   return data ?? []
 }
 
+export async function updateGoalProgress(id: string, progress: number): Promise<void> {
+  const supabase = createClient()
+  await supabase.from("goals").update({ progress }).eq("id", id)
+}
+
 export async function saveGoals(goals: Omit<Goal, "id">[]): Promise<void> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
