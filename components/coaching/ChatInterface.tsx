@@ -59,8 +59,18 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble" }
     setIsTyping(true)
     try {
       const reply = await fetchCoachReply(updatedMessages)
-      setMessages((prev) => [...prev, { role: "coach", text: reply }])
+      const allMessages: Message[] = [...updatedMessages, { role: "coach", text: reply }]
+      setMessages(allMessages)
       await saveMessage(session.id, "coach", reply)
+
+      // Fire-and-forget: update session title + preview once there's enough conversation
+      if (allMessages.length >= 4) {
+        fetch("/api/sessions/summarize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: session.id, messages: allMessages }),
+        }).catch(() => {})
+      }
     } finally {
       setIsTyping(false)
     }
