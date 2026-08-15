@@ -112,6 +112,43 @@ function DashboardFirstTime({ onStartIntake }: { onStartIntake: () => void }) {
   )
 }
 
+// ── Encouragement logic ───────────────────────────────────────
+function getEncouragement(daysThisWeek: number, sessionCount: number): { title: string; body: string } {
+  if (daysThisWeek === 7) return {
+    title: "You checked in every day this week.",
+    body: "A full week. That kind of consistency is rare — take a moment to notice it.",
+  }
+  if (daysThisWeek >= 5) return {
+    title: `${daysThisWeek} check-ins this week.`,
+    body: "Showing up most days is more than most people manage. Notice that.",
+  }
+  if (daysThisWeek >= 3) return {
+    title: `${daysThisWeek} days checked in this week.`,
+    body: "Consistency is building. Each one matters more than it seems.",
+  }
+  if (daysThisWeek === 2) return {
+    title: "You've shown up twice this week.",
+    body: "Two is more than one. That pattern is what becomes a habit.",
+  }
+  if (daysThisWeek === 1) return {
+    title: "One check-in this week.",
+    body: "One is enough. One is how it starts.",
+  }
+  // 0 days this week — fall back to total session count
+  if (sessionCount >= 10) return {
+    title: `${sessionCount} sessions completed.`,
+    body: "The work is accumulating, even in quieter weeks.",
+  }
+  if (sessionCount >= 3) return {
+    title: "A foundation is forming.",
+    body: "A few sessions in, the shape of your work is starting to show.",
+  }
+  return {
+    title: "Ready when you are.",
+    body: "A quiet check-in is enough to start. No need to catch up.",
+  }
+}
+
 // ── Returning user dashboard (hero layout) ────────────────────
 function DashboardReturning({ goals, name, sessionCount, weekActivity, actionSteps, lastRealSession, onStartSession, onOpenCoaching }: {
   goals: Goal[]
@@ -126,6 +163,7 @@ function DashboardReturning({ goals, name, sessionCount, weekActivity, actionSte
   const hour = new Date().getHours()
   const timeGreeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening"
   const dayName = new Date().toLocaleDateString("en-US", { weekday: "long" })
+  const encouragement = getEncouragement(weekActivity.filter(Boolean).length, sessionCount)
 
   return (
     <div className="p-8 pb-20">
@@ -261,8 +299,8 @@ function DashboardReturning({ goals, name, sessionCount, weekActivity, actionSte
           </Card>
 
           <EncouragementBanner
-            title="You've been consistent for 12 days."
-            body="Not perfect — but present. That's what builds the habit."
+            title={encouragement.title}
+            body={encouragement.body}
           />
         </div>
       </div>
