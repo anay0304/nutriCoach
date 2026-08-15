@@ -19,6 +19,26 @@ function AuthForm() {
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState<Status>("idle")
   const [errorMsg, setErrorMsg] = useState("")
+  const [demoLoading, setDemoLoading] = useState(false)
+
+  const handleDemoLogin = async () => {
+    setDemoLoading(true)
+    try {
+      const res = await fetch("/api/demo-login", { method: "POST" })
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      const supabase = createClient()
+      await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      })
+      window.location.href = "/dashboard"
+    } catch {
+      setStatus("error")
+      setErrorMsg("Demo unavailable — try again shortly.")
+      setDemoLoading(false)
+    }
+  }
 
   const sendOtp = async (emailValue: string) => {
     setStatus("loading")
@@ -177,6 +197,27 @@ function AuthForm() {
           </a>
         </div>
       )}
+
+      {/* Demo access */}
+      <div className="mt-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px bg-hairline" />
+          <span className="text-[11px] text-ink-4 uppercase tracking-[0.1em]" style={{ fontFamily: "var(--mono)" }}>or</span>
+          <div className="flex-1 h-px bg-hairline" />
+        </div>
+        <Button
+          variant="subtle"
+          type="button"
+          className="w-full"
+          onClick={handleDemoLogin}
+          disabled={demoLoading}
+        >
+          {demoLoading ? "Loading demo…" : "Try the demo — no email needed"}
+        </Button>
+        <p className="text-[11.5px] text-ink-4 text-center mt-2">
+          Explore the full experience with sample data
+        </p>
+      </div>
     </div>
   )
 }
