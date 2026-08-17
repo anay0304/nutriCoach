@@ -1,110 +1,129 @@
-**⭐ NutriCoach — AI‑Powered Nutrition Coaching for Sustainable Habit Change**
+# NutriCoach
 
+**AI-powered nutrition coaching for sustainable habit change.**
 
-NutriCoach is a modern, behavior‑change‑driven nutrition coaching platform designed to help users build healthier eating habits through simple, realistic, and sustainable actions. Instead of calorie‑tracking or rigid diet rules, NutriCoach focuses on guided coaching conversations, clear next steps, and gentle progress tracking — all grounded in evidence‑based behavior change psychology.
+[**Live demo →**](https://trynutricoach.coach) — click "Try the demo" on the login page, no account needed.
 
-Built with a clean, supportive UI and a modular architecture, NutriCoach delivers a coaching experience that feels structured, human‑centered, and genuinely helpful.
+---
 
-🌱 Why NutriCoach?
-Most nutrition apps overwhelm users with data, charts, and strict plans. NutriCoach takes a different approach:
+NutriCoach is a full-stack web application that delivers personalized nutrition coaching through conversational AI. Instead of calorie tracking or rigid meal plans, it focuses on guided conversations, realistic goal-setting, and gentle progress tracking — grounded in behavior-change psychology.
 
-Coaching over tracking — Users talk to an AI coach trained on behavior‑change principles, not a calorie counter.
+## Tech Stack
 
-Small steps, not perfection — Each session ends with simple, achievable next actions.
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 14 (App Router, TypeScript) |
+| Styling | Tailwind CSS with custom design token system |
+| Auth & Database | Supabase — magic link auth, PostgreSQL, Row Level Security |
+| AI | Anthropic Claude API (`claude-haiku-4-5-20251001`) |
+| Email | Resend — transactional email from a custom branded domain |
+| Deployment | Vercel |
 
-Warm, supportive design — A calm visual system built around trust, autonomy, and clarity.
+## Features
 
-Long‑term habit formation — Progress is measured through consistency, reflection, and meaningful change.
+**Authentication**
+- Passwordless magic link sign-in via Supabase Auth
+- Cookie-based session persistence using `@supabase/ssr` for App Router compatibility
+- One-click demo login — returns real session tokens without requiring an email
 
-NutriCoach is built for real people with real lives — busy adults who want to eat better without turning their life into a spreadsheet.
+**AI Intake Flow**
+- Multi-step onboarding collecting current habits, past attempts, and friction points
+- AI-generated goal suggestions via Claude, based on the user's own answers
+- Editable goal cards before committing — users refine suggestions before they're saved
 
-🧭 Core Features
-📌 Dashboard — Your Coaching Home Base
-A personalized hub that always shows the user’s next steps.
-Includes:
+**Coaching Sessions**
+- Real-time chat with an AI coach persona powered by Anthropic Claude
+- Full conversation history persisted in Supabase
+- Automatic session summarization: after each reply, a background call generates a session title and preview without blocking the UI (fire-and-forget fetch pattern)
+- Quick-start prompts to reduce blank-page friction
 
-First‑time user onboarding
+**Dashboard**
+- Live session count, week activity chart, and goal tracking for returning users
+- Inline goal progress editing — click any percentage to update it in place
+- Action steps with inline add (Enter to save, Escape to cancel, optimistic UI update)
+- Dynamic encouragement banner that adapts messaging to the user's actual activity
+- Session summary card with the most recent coaching session title and preview
 
-Returning user summaries
+**Email**
+- Branded magic link emails from `nouri@trynutricoach.coach`
+- Custom SMTP via Resend with SPF and DKIM records on a verified domain
 
-Goals captured during the initial session
+## Project Structure
 
-Most recent session recap (struggles, action steps, backup plans)
+```
+app/
+  auth/                    # Sign-in / sign-up with demo login
+  dashboard/               # Returning and first-time user views
+  coaching/                # Chat interface and session list
+  api/
+    chat/                  # AI coaching endpoint (Claude)
+    intake/suggest-goals/  # AI goal suggestion endpoint
+    sessions/summarize/    # Background session summarization
+    demo-login/            # Demo account token exchange
 
-Gentle progress indicators using a sage‑green “growth” palette
+components/
+  dashboard/               # GoalCard, NextStepsCard, SessionSummaryCard, EncouragementBanner
+  coaching/                # ChatInterface, ChatBubble, TypingIndicator
+  layout/                  # AppShell, Sidebar, Topbar
+  ui/                      # Button, Card, Input primitives
 
-💬 Coaching Sessions
-A structured coaching experience powered by an AI trained on behavior‑change frameworks:
+lib/
+  db/                      # Database helpers: goals, sessions, messages, profiles, action_steps
+  supabase/                # Browser and server Supabase client factories
+```
 
-Full conversation history
+## Database Schema
 
-New session + check‑in session flows
+Five tables in Supabase PostgreSQL, all with Row Level Security enabled — users can only read and write their own rows.
 
-3‑column layout: session list, live chat, context panel
+| Table | Purpose |
+|---|---|
+| `profiles` | User display name, synced from Supabase Auth on sign-up |
+| `goals` | Nutrition goals with title, detail, cadence, and progress % |
+| `sessions` | Coaching sessions with auto-generated title and preview |
+| `messages` | Per-session message history with role (user / coach) |
+| `action_steps` | Actionable to-dos linked to sessions, with completion state |
 
-Pure text chat (no avatar), keeping the coach abstract and supportive
+## Getting Started
 
-Automatic session summaries
+**Prerequisites:** Node.js 18+, a Supabase project, an Anthropic API key, a Resend account.
 
-📚 Resource Library
-A curated collection of downloadable PDFs (e.g., sleep tips, meal ideas, habit strategies).
-Designed to grow over time.
+```bash
+git clone https://github.com/yourusername/nutricoach.git
+cd nutricoach
+npm install
+```
 
-🧩 Clean, Modular Component System
-Built with:
+Create `.env.local` with the following:
 
-Next.js 14 (App Router)
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+ANTHROPIC_API_KEY=
+DEMO_EMAIL=
+DEMO_PASSWORD=
+```
 
-TypeScript
+```bash
+npm run dev
+```
 
-TailwindCSS
+Open [http://localhost:3000](http://localhost:3000).
 
-ShadCN UI
+## Design System
 
-Reusable components for cards, chat bubbles, progress widgets, session summaries, and more
+NutriCoach uses a custom Tailwind token system built around behavior-change principles rather than generic SaaS conventions:
 
-The UI is fully responsive, accessible, and ready for production.
+- **Warm beige background** — calm and non-clinical, avoids the sterile feel of most health apps
+- **Sage green** — reserved exclusively for progress indicators, never used for calls to action
+- **Amber** — action cues and encouraging highlights
+- **Ink text scale** — four opacity steps (`ink`, `ink-2`, `ink-3`, `ink-4`) for hierarchy without extra colors
 
-🎨 Design Philosophy
-NutriCoach uses a behavior‑change‑aligned color system:
+The coaching interface deliberately avoids streaks, scores, and gamification — the design supports reflection rather than compulsion.
 
-Soft Navy — structure, trust, navigation
+## Architecture Notes
 
-Warm Beige — compassionate, calm background
-
-Sage Green — progress only (never CTAs)
-
-Amber/Coral — encouraging action cues
-
-Strong Ink Text — clarity and hierarchy
-
-The result is a coaching environment that feels warm, grounded, and non‑judgmental.
-
-🏗️ Technical Overview
-NutriCoach is engineered for scalability and clarity:
-
-Next.js 14 App Router for modern routing + server components
-
-ShadCN UI for consistent, themeable primitives
-
-TailwindCSS with custom tokens for the full color system
-
-Modular folder structure for dashboard, coaching, resources, and shared UI
-
-API stubs ready for future integration with Supabase + AI endpoints
-
-The project is structured to support rapid iteration and clean expansion into full backend logic.
-
-🚀 Roadmap
-Supabase integration (auth, sessions, summaries)
-
-AI coaching engine with memory + session scripts
-
-User goal tracking and habit streaks
-
-Expanded resource library
-
-Mobile‑optimized layout
-
-❤️ Built for Sustainable Change
-NutriCoach isn’t just another nutrition app — it’s a coaching companion designed to help users build confidence, autonomy, and healthier habits that last.
+- All database access goes through typed helper functions in `lib/db/` — no raw Supabase queries in components
+- Server-side auth uses `createServerClient` from `@supabase/ssr`; client-side uses `createBrowserClient` — they share the same cookie store for seamless session sync
+- Session summarization is fire-and-forget: it runs after each coach reply but never blocks the chat response or shows errors to the user
+- The demo login endpoint uses `signInWithPassword` and returns `access_token` + `refresh_token` for the client to hydrate via `supabase.auth.setSession()`
