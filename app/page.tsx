@@ -4,13 +4,14 @@ import Link from "next/link"
 import { ArrowRight, Leaf, Check, Clock, MessageCircle, Target, RefreshCw } from "lucide-react"
 import { BrandMark } from "@/components/layout/BrandMark"
 import { CoachMark } from "@/components/layout/CoachMark"
+import { MobileNav } from "@/components/layout/MobileNav"
 import { Button } from "@/components/ui/button"
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-bg flex flex-col">
       {/* ── Nav ─────────────────────────────────────────────── */}
-      <nav className="flex justify-between items-center px-12 py-[22px] max-w-[1280px] mx-auto w-full">
+      <nav className="flex justify-between items-center px-5 md:px-12 py-[18px] md:py-[22px] max-w-[1280px] mx-auto w-full">
         <div className="flex items-center gap-2.5">
           <span className="text-amber w-[26px] h-[26px] grid place-items-center">
             <BrandMark size={26} />
@@ -18,7 +19,7 @@ export default function LandingPage() {
           <span className="font-serif text-[19px] tracking-[-0.015em] text-ink">NutriCoach</span>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="hidden md:flex items-center gap-2.5">
           <a className="text-[13.5px] text-ink-2 hover:text-ink px-3 py-1 cursor-pointer transition-colors">How it works</a>
           <a className="text-[13.5px] text-ink-2 hover:text-ink px-3 py-1 cursor-pointer transition-colors">For coaches</a>
           <a className="text-[13.5px] text-ink-2 hover:text-ink px-3 py-1 cursor-pointer transition-colors">Pricing</a>
@@ -29,11 +30,12 @@ export default function LandingPage() {
             <Button variant="primary" size="sm">Start coaching</Button>
           </Link>
         </div>
+
+        <MobileNav />
       </nav>
 
       {/* ── Hero ────────────────────────────────────────────── */}
-      <section className="flex-1 grid grid-cols-[1.15fr_1fr] gap-20 max-w-[1280px] mx-auto w-full px-12 pt-15 pb-20 items-center"
-               style={{ paddingTop: 60, paddingBottom: 80 }}>
+      <section className="flex-1 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-20 max-w-[1280px] mx-auto w-full px-5 md:px-12 pt-10 md:pt-[60px] pb-12 md:pb-[80px] items-center">
         {/* Left — copy */}
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill bg-surface-2 border border-hairline text-xs font-medium text-ink-2 mb-[22px]">
@@ -42,18 +44,18 @@ export default function LandingPage() {
           </div>
 
           <h1
-            className="font-serif font-[420] text-[58px] leading-[1.08] tracking-[-0.03em] max-w-[580px] mb-0"
+            className="font-serif font-[420] text-[32px] md:text-[46px] lg:text-[58px] leading-[1.15] md:leading-[1.08] tracking-[-0.03em] max-w-[580px] mb-0"
           >
             A quieter way<br />
             to change{" "}
             <em className="not-italic text-amber">how you eat.</em>
           </h1>
 
-          <p className="text-[18px] text-ink-3 leading-[1.55] max-w-[460px] mt-[22px] mb-8">
+          <p className="text-[16px] md:text-[18px] text-ink-3 leading-[1.55] max-w-[460px] mt-[22px] mb-8">
             NutriCoach is a conversation, not a tracker. Your AI coach listens, asks better questions, and helps you build sustainable habits — one small choice at a time.
           </p>
 
-          <div className="flex gap-3 items-center">
+          <div className="flex flex-wrap gap-3 items-center">
             <Link href="/auth">
               <Button variant="primary" size="lg">
                 Begin your first session <ArrowRight size={16} />
@@ -62,7 +64,7 @@ export default function LandingPage() {
             <Button variant="ghost" size="lg">Watch a 90-second tour</Button>
           </div>
 
-          <div className="flex gap-6 mt-9 text-[13px] text-ink-3">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 mt-9 text-[13px] text-ink-3">
             <span className="flex items-center gap-2"><Leaf size={14} /> No tracking. No macros.</span>
             <span className="flex items-center gap-2"><Check size={14} /> Private &amp; secure</span>
             <span className="flex items-center gap-2"><Clock size={14} /> 5 min · cancel anytime</span>
@@ -71,7 +73,7 @@ export default function LandingPage() {
 
         {/* Right — abstract coach moment (dark card, no photo) */}
         <div
-          className="bg-ink rounded-xl p-9 text-[#efe7d4] relative overflow-hidden flex flex-col justify-between"
+          className="bg-ink rounded-xl p-6 md:p-9 text-[#efe7d4] relative overflow-hidden flex flex-col justify-between"
           style={{ aspectRatio: "4/5" }}
         >
           {/* Decorative circles */}
@@ -100,7 +102,7 @@ export default function LandingPage() {
             </div>
 
             <p
-              className="text-[22px] leading-[1.4] text-[#f7efdb] tracking-[-0.01em]"
+              className="text-[18px] md:text-[22px] leading-[1.4] text-[#f7efdb] tracking-[-0.01em]"
               style={{ fontFamily: "var(--serif)" }}
             >
               &ldquo;Tell me about the last meal that felt easy — not because it was healthy, but because you actually enjoyed it.&rdquo;
@@ -142,7 +144,7 @@ export default function LandingPage() {
 
       {/* ── Feature row ─────────────────────────────────────── */}
       <section
-        className="grid grid-cols-4 gap-6 max-w-[1280px] mx-auto w-full px-12 pt-6 pb-16 border-t border-hairline"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6 max-w-[1280px] mx-auto w-full px-5 md:px-12 pt-6 pb-16 border-t border-hairline"
       >
         {[
           { icon: <MessageCircle size={18} />, title: "A real conversation", body: "Not a quiz. Your coach asks, listens, reflects — and helps you see what you already know." },
