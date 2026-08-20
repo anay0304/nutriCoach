@@ -51,6 +51,24 @@ export function TypingIndicator() {
   )
 }
 
+// Shown in place of the coach's reply when it failed to arrive
+export function FailedReply({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="flex gap-3 max-w-[720px] self-start">
+      <CoachMark size="xs" />
+      <div className="bg-amber-soft/40 border border-amber-soft rounded-[18px] rounded-bl-[6px] px-[18px] py-3.5 flex items-center gap-3 flex-wrap">
+        <span className="text-[13.5px] text-amber-ink leading-[1.5]">{message}</span>
+        <button
+          onClick={onRetry}
+          className="text-[13.5px] font-medium text-amber-ink underline underline-offset-2 shrink-0"
+        >
+          Try again
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // Date divider marker
 export function SessionMarker({ text }: { text: string }) {
   return (

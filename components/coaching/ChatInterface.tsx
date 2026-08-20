@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { Send, Paperclip, Mic, FileText, MoreHorizontal, List, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CoachMark } from "@/components/layout/CoachMark"
-import { ChatBubble, TypingIndicator, SessionMarker } from "./ChatBubble"
+import { ChatBubble, TypingIndicator, SessionMarker, FailedReply } from "./ChatBubble"
 import { cn } from "@/lib/utils"
 import { saveMessage } from "@/lib/db/messages"
 import type { Message, Session } from "@/types"
@@ -32,14 +32,17 @@ async function fetchCoachReply(messages: Message[]): Promise<string> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ messages }),
   })
+  if (!res.ok) throw new Error("Coach reply failed")
   const { text } = await res.json()
-  return text ?? "I'm having trouble responding right now. Please try again."
+  if (!text) throw new Error("Coach reply empty")
+  return text
 }
 
 export function ChatInterface({ session, initialMessages, chatStyle = "bubble", onOpenSessions, onOpenContext }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [draft, setDraft] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const streamRef = useRef<HTMLDivElement>(null)
 
   // Scroll to bottom on new messages
@@ -47,21 +50,14 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble", 
     if (streamRef.current) {
       streamRef.current.scrollTop = streamRef.current.scrollHeight
     }
-  }, [messages.length, isTyping])
+  }, [messages.length, isTyping, error])
 
-  const send = async () => {
-    const text = draft.trim()
-    if (!text || isTyping) return
-    setDraft("")
-
-    const updatedMessages: Message[] = [...messages, { role: "user", text }]
-    setMessages(updatedMessages)
-    await saveMessage(session.id, "user", text)
-
+  const requestCoachReply = async (currentMessages: Message[]) => {
+    setError(null)
     setIsTyping(true)
     try {
-      const reply = await fetchCoachReply(updatedMessages)
-      const allMessages: Message[] = [...updatedMessages, { role: "coach", text: reply }]
+      const reply = await fetchCoachReply(currentMessages)
+      const allMessages: Message[] = [...currentMessages, { role: "coach", text: reply }]
       setMessages(allMessages)
       await saveMessage(session.id, "coach", reply)
 
@@ -73,9 +69,23 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble", 
           body: JSON.stringify({ sessionId: session.id, messages: allMessages }),
         }).catch(() => {})
       }
+    } catch {
+      setError("Your coach didn't get that. Check your connection and try again.")
     } finally {
       setIsTyping(false)
     }
+  }
+
+  const send = async () => {
+    const text = draft.trim()
+    if (!text || isTyping) return
+    setDraft("")
+
+    const updatedMessages: Message[] = [...messages, { role: "user", text }]
+    setMessages(updatedMessages)
+    await saveMessage(session.id, "user", text)
+
+    await requestCoachReply(updatedMessages)
   }
 
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -137,6 +147,7 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble", 
         ))}
 
         {isTyping && <TypingIndicator />}
+        {error && <FailedReply message={error} onRetry={() => requestCoachReply(messages)} />}
       </div>
 
       {/* Input bar */}
