@@ -10,7 +10,7 @@ import { createClient } from "@/lib/supabase/client"
 import { getProfile } from "@/lib/db/profiles"
 import { getSessionStats } from "@/lib/db/sessions"
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/coaching",  label: "Coaching",  icon: MessageCircle },
   { href: "/resources", label: "Resources",  icon: BookOpen },
@@ -65,7 +65,7 @@ export function Sidebar({ onSignOut }: SidebarProps) {
 
   return (
     <aside
-      className="w-[248px] bg-bg border-r border-hairline px-5 flex flex-col shrink-0 h-screen sticky top-0"
+      className="hidden md:flex w-[248px] bg-bg border-r border-hairline px-5 flex-col shrink-0 h-screen sticky top-0"
       style={{ fontFamily: "var(--sans)" }}
     >
       {/* Brand */}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Send, Paperclip, Mic, FileText, MoreHorizontal } from "lucide-react"
+import { Send, Paperclip, Mic, FileText, MoreHorizontal, List, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CoachMark } from "@/components/layout/CoachMark"
 import { ChatBubble, TypingIndicator, SessionMarker } from "./ChatBubble"
@@ -15,6 +15,8 @@ interface ChatInterfaceProps {
   session: Session
   initialMessages: Message[]
   chatStyle?: ChatStyle
+  onOpenSessions?: () => void
+  onOpenContext?: () => void
 }
 
 const QUICK_STARTERS = [
@@ -34,7 +36,7 @@ async function fetchCoachReply(messages: Message[]): Promise<string> {
   return text ?? "I'm having trouble responding right now. Please try again."
 }
 
-export function ChatInterface({ session, initialMessages, chatStyle = "bubble" }: ChatInterfaceProps) {
+export function ChatInterface({ session, initialMessages, chatStyle = "bubble", onOpenSessions, onOpenContext }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [draft, setDraft] = useState("")
   const [isTyping, setIsTyping] = useState(false)
@@ -84,9 +86,9 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble" }
   }
 
   return (
-    <div className={cn("flex flex-col h-full border-r border-hairline", `chat-style-${chatStyle}`)}>
+    <div className={cn("flex flex-col h-full border-r-0 md:border-r border-hairline", `chat-style-${chatStyle}`)}>
       {/* Session header */}
-      <div className="flex items-center gap-3.5 px-7 py-[18px] border-b border-hairline bg-bg">
+      <div className="flex items-center gap-3.5 px-4 md:px-7 py-[18px] border-b border-hairline bg-bg">
         <CoachMark />
         <div className="flex-1">
           <div
@@ -100,8 +102,18 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble" }
             <span className="text-sage-ink">● live</span>
           </div>
         </div>
+        {onOpenSessions && (
+          <Button variant="subtle" size="sm" onClick={onOpenSessions} title="Sessions">
+            <List size={14} />
+          </Button>
+        )}
+        {onOpenContext && (
+          <Button variant="subtle" size="sm" onClick={onOpenContext} title="Details">
+            <Info size={14} />
+          </Button>
+        )}
         <Button variant="subtle" size="sm">
-          <FileText size={13} /> Session notes
+          <FileText size={13} /> <span className="hidden sm:inline">Session notes</span>
         </Button>
         <Button variant="subtle" size="sm">
           <MoreHorizontal size={14} />
@@ -111,7 +123,7 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble" }
       {/* Message stream */}
       <div
         ref={streamRef}
-        className="flex-1 overflow-y-auto min-h-0 px-8 py-7 flex flex-col gap-[18px]"
+        className="flex-1 overflow-y-auto min-h-0 px-4 md:px-8 py-5 md:py-7 flex flex-col gap-[18px]"
       >
         <SessionMarker text="Started this conversation 4 minutes ago" />
 
@@ -128,7 +140,7 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble" }
       </div>
 
       {/* Input bar */}
-      <div className="border-t border-hairline px-6 pt-4 pb-5 bg-bg flex flex-col gap-2.5">
+      <div className="border-t border-hairline px-4 md:px-6 pt-4 pb-5 bg-bg flex flex-col gap-2.5">
         {/* Quick-start chips */}
         <div className="flex flex-wrap gap-1.5">
           {QUICK_STARTERS.map((s, i) => (
