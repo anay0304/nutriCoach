@@ -24,19 +24,19 @@ export function MobileNav() {
         <div className="absolute right-0 top-[calc(100%+10px)] w-[220px] bg-surface border border-hairline rounded-lg shadow-2 p-2.5 flex flex-col gap-1 z-50">
           <a
             onClick={() => setOpen(false)}
-            className="text-[13.5px] text-ink-2 px-3 py-2.5 cursor-pointer"
+            className="text-[13.5px] text-ink-2 px-3 py-2.5"
           >
             How it works
           </a>
           <a
             onClick={() => setOpen(false)}
-            className="text-[13.5px] text-ink-2 px-3 py-2.5 cursor-pointer"
+            className="text-[13.5px] text-ink-2 px-3 py-2.5"
           >
             For coaches
           </a>
           <a
             onClick={() => setOpen(false)}
-            className="text-[13.5px] text-ink-2 px-3 py-2.5 cursor-pointer"
+            className="text-[13.5px] text-ink-2 px-3 py-2.5"
           >
             Pricing
           </a>

@@ -122,10 +122,10 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble", 
             <Info size={14} />
           </Button>
         )}
-        <Button variant="subtle" size="sm">
+        <Button variant="subtle" size="sm" title="Session notes — coming soon" disabled>
           <FileText size={13} /> <span className="hidden sm:inline">Session notes</span>
         </Button>
-        <Button variant="subtle" size="sm">
+        <Button variant="subtle" size="sm" title="More — coming soon" disabled>
           <MoreHorizontal size={14} />
         </Button>
       </div>
@@ -174,10 +174,10 @@ export function ChatInterface({ session, initialMessages, chatStyle = "bubble", 
             placeholder="What's on your mind? Take your time."
             className="flex-1 bg-transparent border-0 outline-none text-[14.5px] text-ink placeholder:text-ink-4 h-8"
           />
-          <Button variant="subtle" size="sm" title="Attach file">
+          <Button variant="subtle" size="sm" title="Attach file — coming soon" disabled>
             <Paperclip size={14} />
           </Button>
-          <Button variant="subtle" size="sm" title="Voice note">
+          <Button variant="subtle" size="sm" title="Voice note — coming soon" disabled>
             <Mic size={14} />
           </Button>
           <Button variant="primary" size="sm" onClick={send}>

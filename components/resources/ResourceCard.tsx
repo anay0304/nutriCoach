@@ -75,7 +75,7 @@ export function ResourceCard({ resource: r }: ResourceCardProps) {
         >
           {r.pages ? `${r.pages} pp` : "Audio"}
         </span>
-        <Button variant="subtle" size="sm">
+        <Button variant="subtle" size="sm" title="Download — coming soon" disabled>
           <Download size={12} /> Get
         </Button>
       </div>

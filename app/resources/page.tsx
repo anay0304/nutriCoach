@@ -48,10 +48,10 @@ export default function ResourcesPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <Button variant="ghost">
+              <Button variant="ghost" title="Search — coming soon" disabled>
                 <Search size={14} /> Search
               </Button>
-              <Button variant="subtle">My saved (3)</Button>
+              <Button variant="subtle" title="Saved resources — coming soon" disabled>My saved</Button>
             </div>
           </div>
 
@@ -107,13 +107,15 @@ export default function ResourcesPage() {
                 </p>
 
                 <div className="flex gap-2.5">
-                  <Button variant="primary">
+                  <Button variant="primary" title="Download — coming soon" disabled>
                     <Download size={14} /> Download PDF
                   </Button>
                   <Button
                     variant="ghost"
                     className="text-[#efe7d4]"
                     style={{ borderColor: "rgba(247,239,219,0.2)" }}
+                    title="Read in app — coming soon"
+                    disabled
                   >
                     Read in app
                   </Button>

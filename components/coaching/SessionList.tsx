@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Filter, Plus, Clock } from "lucide-react"
+import { Plus, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -29,9 +29,10 @@ interface SessionListProps {
   activeId: string
   onSelect: (id: string) => void
   onNewSession: () => void
+  onQuickCheckIn: () => void
 }
 
-export function SessionList({ sessions, activeId, onSelect, onNewSession }: SessionListProps) {
+export function SessionList({ sessions, activeId, onSelect, onNewSession, onQuickCheckIn }: SessionListProps) {
   const [filter, setFilter] = useState<FilterType>("all")
 
   const filtered = filter === "all"
@@ -44,9 +45,6 @@ export function SessionList({ sessions, activeId, onSelect, onNewSession }: Sess
       <div className="px-[22px] pt-[22px] pb-3.5">
         <div className="flex items-center justify-between mb-3.5">
           <h3 className="font-serif text-[22px]">Sessions</h3>
-          <Button variant="subtle" size="sm" title="Filter">
-            <Filter size={13} />
-          </Button>
         </div>
 
         {/* Filter segmented control */}
@@ -73,7 +71,7 @@ export function SessionList({ sessions, activeId, onSelect, onNewSession }: Sess
         <Button variant="primary" className="w-full" onClick={onNewSession}>
           <Plus size={14} /> New session
         </Button>
-        <Button variant="ghost" className="w-full">
+        <Button variant="ghost" className="w-full" onClick={onQuickCheckIn}>
           <Clock size={14} /> Quick check-in
         </Button>
       </div>

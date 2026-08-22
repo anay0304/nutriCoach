@@ -17,10 +17,10 @@ export function Topbar({ crumb, right }: TopbarProps) {
 
       <div className="flex items-center gap-2">
         {right}
-        <Button variant="subtle" size="sm" title="Search">
+        <Button variant="subtle" size="sm" title="Search — coming soon" disabled>
           <Search size={14} />
         </Button>
-        <Button variant="subtle" size="sm" title="Notifications">
+        <Button variant="subtle" size="sm" title="Notifications — coming soon" disabled>
           <Bell size={14} />
         </Button>
       </div>

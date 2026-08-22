@@ -319,7 +319,7 @@ export default function IntakePage() {
         {/* Header strip */}
         <div className="flex items-center gap-[18px] px-10 py-5 border-b border-hairline bg-bg shrink-0">
           <Button variant="subtle" size="sm" onClick={() => router.push("/dashboard")}>
-            ← Exit (saves progress)
+            ← Exit
           </Button>
 
           <div className="flex-1">
@@ -336,7 +336,7 @@ export default function IntakePage() {
             </div>
           </div>
 
-          <Button variant="ghost" size="sm">Save &amp; come back</Button>
+          <Button variant="ghost" size="sm" title="Save & come back — coming soon" disabled>Save &amp; come back</Button>
         </div>
 
         {/* Two-column content */}
@@ -358,7 +358,7 @@ export default function IntakePage() {
                 </Button>
 
                 <div className="flex gap-2.5">
-                  <Button variant="subtle">Skip for now</Button>
+                  <Button variant="subtle" onClick={advance}>Skip for now</Button>
                   <Button variant="primary" onClick={advance}>
                     {step < TOTAL_STEPS ? "Continue" : "Set my goals"}
                     <ArrowRight size={14} />

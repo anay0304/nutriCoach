@@ -20,9 +20,9 @@ export default function LandingPage() {
         </div>
 
         <div className="hidden md:flex items-center gap-2.5">
-          <a className="text-[13.5px] text-ink-2 hover:text-ink px-3 py-1 cursor-pointer transition-colors">How it works</a>
-          <a className="text-[13.5px] text-ink-2 hover:text-ink px-3 py-1 cursor-pointer transition-colors">For coaches</a>
-          <a className="text-[13.5px] text-ink-2 hover:text-ink px-3 py-1 cursor-pointer transition-colors">Pricing</a>
+          <a className="text-[13.5px] text-ink-2 px-3 py-1">How it works</a>
+          <a className="text-[13.5px] text-ink-2 px-3 py-1">For coaches</a>
+          <a className="text-[13.5px] text-ink-2 px-3 py-1">Pricing</a>
           <Link href="/auth?mode=signin">
             <Button variant="ghost" size="sm">Sign in</Button>
           </Link>

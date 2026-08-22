@@ -79,6 +79,14 @@ export default function CoachingPage() {
     setMessages([])
   }
 
+  const handleNewCheckIn = async () => {
+    const fresh = await createSession("Check-in", "check-in")
+    if (!fresh) return
+    setSessions((prev) => [fresh, ...prev])
+    setActiveId(fresh.id)
+    setMessages([])
+  }
+
   const activeSession = sessions.find((s) => s.id === activeId) ?? sessions[0]
 
   const crumb = (
@@ -105,6 +113,7 @@ export default function CoachingPage() {
                   activeId={activeId ?? ""}
                   onSelect={selectSession}
                   onNewSession={handleNewSession}
+                  onQuickCheckIn={handleNewCheckIn}
                 />
 
                 {activeSession && (
@@ -152,6 +161,7 @@ export default function CoachingPage() {
                     activeId={activeId ?? ""}
                     onSelect={(id) => { selectSession(id); setMobileView("chat") }}
                     onNewSession={() => { handleNewSession(); setMobileView("chat") }}
+                    onQuickCheckIn={() => { handleNewCheckIn(); setMobileView("chat") }}
                   />
                 </div>
               </div>

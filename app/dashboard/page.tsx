@@ -287,7 +287,9 @@ function DashboardReturning({ goals, name, sessionCount, weekActivity, actionSte
           <Card className="p-[22px_24px]">
             <div className="flex justify-between items-center mb-3.5 gap-2">
               <h3 className="font-serif text-xl whitespace-nowrap">Your goals</h3>
-              <Button variant="subtle" size="sm">Review</Button>
+              <Link href="/coaching">
+                <Button variant="subtle" size="sm">Review</Button>
+              </Link>
             </div>
             <p className="text-[13px] text-ink-3 mb-1.5">
               Three things we&apos;re keeping warm together — set in your initial session.
