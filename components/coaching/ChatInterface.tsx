@@ -5,6 +5,7 @@ import { Send, Paperclip, Mic, FileText, MoreHorizontal, List, Info } from "luci
 import { Button } from "@/components/ui/button"
 import { CoachMark } from "@/components/layout/CoachMark"
 import { ChatBubble, TypingIndicator, SessionMarker, FailedReply } from "./ChatBubble"
+import { fetchCoachReply } from "./fetchCoachReply"
 import { cn } from "@/lib/utils"
 import { saveMessage } from "@/lib/db/messages"
 import type { Message, Session } from "@/types"
@@ -25,18 +26,6 @@ const QUICK_STARTERS = [
   "I had a small win",
   "I'm not sure what to talk about",
 ]
-
-async function fetchCoachReply(messages: Message[]): Promise<string> {
-  const res = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages }),
-  })
-  if (!res.ok) throw new Error("Coach reply failed")
-  const { text } = await res.json()
-  if (!text) throw new Error("Coach reply empty")
-  return text
-}
 
 export function ChatInterface({ session, initialMessages, chatStyle = "bubble", onOpenSessions, onOpenContext }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
